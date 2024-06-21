@@ -1,7 +1,7 @@
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 1260,
+    height: 565,
     scene: {
         preload: preload,
         create: create,
@@ -20,8 +20,18 @@ function preload() {
 
 function create() {
     // Initialize your game scene here
-    // Create a circle in the middle of the screen
-    player = this.add.circle(400, 300, 25, 0xffffff);
+    // Create a triangle in the middle of the screen
+    player = this.add.polygon(630, 280, [0, -25, 25, 25, -25, 25], 0xffffff);
+
+    player.setOrigin(0.5, 0.5);
+    
+    this.input.on('pointermove', function (pointer) {
+        // Calculate the angle between the player and the pointer
+        const angle = Phaser.Math.Angle.Between(player.x, player.y, pointer.worldX, pointer.worldY);
+        
+        // Set the player's rotation to this angle
+        player.rotation = angle + Math.PI / 2;
+    });
 
     // Enable cursor keys for movement
     cursors = this.input.keyboard.createCursorKeys();

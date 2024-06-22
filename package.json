@@ -4,13 +4,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"live-server"
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "live-server": "^1.2.2",
-    "phaser": "^3.80.1"
+    "phaser": "^3.80.1",
+    "src": "^1.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "7.2.0",
+    "parcel-bundler": "^1.6.1"
   }
 }

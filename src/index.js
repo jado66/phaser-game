@@ -1,4 +1,3 @@
-import Phaser from "../node_modules/phaser";
 import Game from './scenes/Game.js';
 
 export const VW = 1400 //Viewport width

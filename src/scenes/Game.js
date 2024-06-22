@@ -2,8 +2,6 @@ import Phaser from "phaser";
 import { VW, VH } from "..";
 import { addCenterLines } from "../debug/addCenterLines";
 
-import backgroundUrl from '../../src/assets/background.png'
-
 let player
 let cursors
 
@@ -14,7 +12,7 @@ export default class Game extends Phaser.Scene {
     init() {
     }
     preload() {
-        this.load.image("background", backgroundUrl);
+        this.load.image("background", '../assets/background.png');
     }
     create() {
 

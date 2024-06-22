@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "main": "dist/index.html",
   "scripts": {
-    "start": "esbuild src/index.js --bundle --outfile=dist/index.js --servedir=dist --watch", 
-    "build": "esbuild src/index.js --bundle --minify --outfile=dist/index.js"
+    "start": "esbuild src/index.js --bundle --outfile=dist/index.js --servedir=dist --watch",
+    "build": "esbuild src/index.js --bundle --minify --outfile=dist/index.js",
+    "serve": "http-server dist -p $PORT"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "esbuild": "^0.21.5",
+    "http-server": "^14.1.1",
     "phaser": "^3.80.1"
   },
   "devDependencies": {

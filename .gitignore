@@ -7,7 +7,6 @@ logs
 npm-debug.log*
 
 .cache
-dist
 
 # Optional npm cache directory
 .npm

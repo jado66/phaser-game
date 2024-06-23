@@ -1,5 +1,7 @@
+import GameUI from "@/ui/GameUi";
 import { VW, VH } from "../PhaserGame";
 import { addCenterLines } from "../debug/addCenterLines";
+import Inventory from "../engine/Inventory";
 
 let player
 let cursors
@@ -12,8 +14,13 @@ export default class Game extends Phaser.Scene {
     }
     preload() {
         this.load.image("background", '../assets/background.png');
+        
+        this.gameUI = new GameUI(this);
+        this.gameUI.preload();
+
     }
     create() {
+
 
         this.add.image(
             VW / 2,
@@ -21,12 +28,17 @@ export default class Game extends Phaser.Scene {
             "background"
         );
 
+
         const playerSize = 50
         const halfPlayerSize = playerSize/2
 
         player = this.add.polygon(VW/2, VH/2, [0, -halfPlayerSize, halfPlayerSize, halfPlayerSize, -halfPlayerSize, halfPlayerSize], 0xffffff);
 
         player.setOrigin(0, 3/halfPlayerSize); // move the player up just a tidge
+
+        const inventory = player.inventory = new Inventory();
+
+        this.gameUI.create(inventory);
 
         this.input.on('pointermove', function (pointer) {
             //Make sure we aren't strafing            

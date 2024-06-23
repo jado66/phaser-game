@@ -37,8 +37,10 @@ export default class Game extends Phaser.Scene {
         player.setOrigin(0, 3/halfPlayerSize); // move the player up just a tidge
 
         const inventory = player.inventory = new Inventory();
+        player.health = 100
+        player.stamina = 100
 
-        this.gameUI.create(inventory);
+        this.gameUI.create(player);
 
         this.input.on('pointermove', function (pointer) {
             //Make sure we aren't strafing            
@@ -61,6 +63,8 @@ export default class Game extends Phaser.Scene {
             right: Phaser.Input.Keyboard.KeyCodes.D
         });
 
+        this.shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
+
         const debug = false
 
         if (debug){
@@ -74,12 +78,23 @@ export default class Game extends Phaser.Scene {
         this.cameras.main.setDeadzone(VW / 2, VH / 2);
     }
     update() {
+
+        this.gameUI.update()
+
         let speed = 200;
+
+        
+
         let moveX = 0;
         let moveY = 0;
     
 
         const playerAngle = player.rotation - Math.PI / 2; // Adjust rotation since we added PI/2 during the update
+
+        if (this.shiftKey.isDown && player.stamina >= 0 && (cursors.up.isDown || this.wasdKeys.up.isDown)){
+            player.stamina -= 1 * this.game.loop.delta / 1000 * 50
+            speed = speed * 2
+        }
 
         // Movement towards or away from the cursor
         if (cursors.up.isDown || this.wasdKeys.up.isDown) {
@@ -99,6 +114,16 @@ export default class Game extends Phaser.Scene {
             moveY -= Math.sin(playerAngle + Math.PI / 2) * speed;
         }
     
+        if (player.stamina < 100){
+
+            if (!moveX && !moveY){
+                player.stamina += 1 * this.game.loop.delta / 1000 * 5
+            }
+            else if (player.stamina > 10){
+                player.stamina += 1 * this.game.loop.delta / 1000 * 2.5
+            }
+        }
+       
 
     // Apply the calculated movements to the player's position.
     player.x += moveX * (this.game.loop.delta / 1000);

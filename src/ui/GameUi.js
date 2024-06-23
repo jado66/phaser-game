@@ -2,14 +2,15 @@ class GameUI {
     constructor(scene) {
         this.scene = scene;
         this.isShowInventory = false;
+        this.player = null
     }
 
     preload() {
         // No assets to load in this version
     }
 
-    create(inventory) {
-        this.inventory = inventory;
+    create(player) {
+        this.player = player
 
         // Create a container for UI elements
         this.uiContainer = this.scene.add.container(0, 0);
@@ -24,15 +25,18 @@ class GameUI {
         mapCircle.setScrollFactor(0);
 
         // Create health bar
-        this.healthBarBackground = this.scene.add.rectangle(20, 20, 200, 20, 0x000000);
+
+        const barWidth = 200
+
+        this.healthBarBackground = this.scene.add.rectangle(18, 18, barWidth+4, 22, 0x000000);
         this.healthBarBackground.setOrigin(0, 0).setScrollFactor(0);
-        this.healthBar = this.scene.add.rectangle(20, 20, 180, 15, 0xff0000);
+        this.healthBar = this.scene.add.rectangle(20, 20, barWidth, 18, 0xff0000);
         this.healthBar.setOrigin(0, 0).setScrollFactor(0);
 
         // Create stamina bar
-        this.staminaBarBackground = this.scene.add.rectangle(20, 50, 200, 20, 0x000000);
+        this.staminaBarBackground = this.scene.add.rectangle(18, 40, barWidth+4, 22, 0x000000);
         this.staminaBarBackground.setOrigin(0, 0).setScrollFactor(0);
-        this.staminaBar = this.scene.add.rectangle(20, 50, 180, 15, 0x00ff00);
+        this.staminaBar = this.scene.add.rectangle(20, 42, barWidth, 18, 0x00ff00);
         this.staminaBar.setOrigin(0, 0).setScrollFactor(0);
 
         // Create the background rectangle for the inventory button
@@ -59,8 +63,6 @@ class GameUI {
         );
         this.inventoryButton.setOrigin(0.5, 0.5).setScrollFactor(0);
         this.inventoryButton.setInteractive({ useHandCursor: true });
-
-       
 
         this.inventoryDisplay = this.scene.add.text(
             buttonX, 
@@ -104,7 +106,7 @@ class GameUI {
         this.debugAddItemButton.setInteractive({ useHandCursor: true });
 
         this.debugAddItemButton.on('pointerdown', () => {
-            this.inventory.addItem(debugPickRandomItem())
+            this.player.inventory.addItem(debugPickRandomItem())
             this.showInventoryJson()
         });
 
@@ -120,9 +122,15 @@ class GameUI {
         ]);
     }
 
+    update() {
+        // Update the health and stamina bars based on player's current values
+        this.updateHealthBar(this.player.health);
+        this.updateStaminaBar(this.player.stamina);
+    }
+
     
     showInventoryJson() {
-        const items = this.inventory.listItemsDebugJson();
+        const items = this.player.inventory.listItemsDebugJson();
         this.inventoryDisplay.setVisible(true);
         this.inventoryDisplay.setText(items);
     }
@@ -131,7 +139,6 @@ class GameUI {
             this.inventoryDisplay.setVisible(false);
         }
     }
-
 
     updateHealthBar(value) {
         // Update health bar width based on the value (e.g., player health)

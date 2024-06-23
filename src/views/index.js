@@ -13,7 +13,16 @@ const HomeView = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
-                <PhaserGame />
+                <h1 style={{textAlign:'center'}}>Maze Runner</h1>
+                <div style={{
+                    display:'flex', 
+                    justifyContent:'center',
+                    alignItems:'center'
+                }}>
+                    <PhaserGame />
+
+                </div>
+
             </main>
         </>
     );

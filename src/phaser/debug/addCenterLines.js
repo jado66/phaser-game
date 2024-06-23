@@ -1,4 +1,4 @@
-import { VH, VW } from "../PhaserGame";
+import { VH, VW } from '@/constants/globalConstants';
 
 export function addCenterLines(scene){
     const graphics = scene.add.graphics();

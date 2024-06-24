@@ -3,6 +3,8 @@ import { VW, VH, globalDebug } from "../PhaserGame";
 import { addCenterLines } from "../debug/addCenterLines";
 import Inventory from "../engine/Inventory";
 import { enableCameraZoom } from "../debug/enableCameraZoom";
+import { addDebugTileCollisionColors } from "../debug/colorCollisionTiles";
+import { addPlayerCollisionBounds } from "../debug/addPlayerCollisionBounds";
 
 let player
 let cursors
@@ -29,45 +31,9 @@ export default class Game extends Phaser.Scene {
         const tileset = map.addTilesetImage('dungeon', 'tiles')
         const worldLayer = map.createLayer('world', tileset)
 
-          // Create the tilemap from the loaded JSON file
-        // const map = this.make.tilemap({ key: 'map' });
-        // const tileset = map.addTilesetImage('dungeon_tiles16', 'tilesImage');
-
-        // Add the tileset image to the map
-
-        // Create one or more layers, depending on how many layers you have in Tiled
-        // const worldLayer = map.createLayer('World Layer', tileset, 0, 0);
-      
-        // Optionally, set collision on a layer
         worldLayer.setScale(4);
 
         worldLayer.setCollisionByProperty({ collides: true });
-
-        // Debug graphics
-        if (this.debug){
-            const debugGraphics = this.add.graphics().setAlpha(0.75);
-            worldLayer.renderDebug(debugGraphics, {
-                tileColor: null, // Color of non-colliding tiles
-                collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-                faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-            });
-    
-            worldLayer.forEachTile(tile => {
-                if (tile.properties.collides) {
-                  console.log(`Tile ${tile.id} at ${tile.x},${tile.y} collides`);
-                }
-              });
-
-              this.physics.world.createDebugGraphic().setVisible(true);
-
-        }
-       
-        // this.add.image(
-        //     VW / 2,
-        //     VH / 2,
-        //     "background"
-        // );
-
 
         const playerSize = 50
         const halfPlayerSize = playerSize/2
@@ -78,6 +44,8 @@ export default class Game extends Phaser.Scene {
 
         this.physics.add.existing(player);
         player.body.setSize(50, 50); // Set the size of the physics body
+        player.body.setOffset(-25, -25); // Offset to center the collider
+
         // player.body.setCollideWorldBounds(true);
 
         this.physics.add.collider(player, worldLayer);
@@ -111,10 +79,11 @@ export default class Game extends Phaser.Scene {
 
         this.shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
-
         if (this.debug){
             addCenterLines(this)
+            addPlayerCollisionBounds(this)
             enableCameraZoom(this)
+            addDebugTileCollisionColors(this, worldLayer)
         }
         
         // Set camera to follow the player

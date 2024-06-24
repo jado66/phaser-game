@@ -2,6 +2,7 @@ import GameUI from "@/ui/GameUi";
 import { VW, VH } from "../PhaserGame";
 import { addCenterLines } from "../debug/addCenterLines";
 import Inventory from "../engine/Inventory";
+import { enableCameraZoom } from "../debug/enableCameraZoom";
 
 let player
 let cursors
@@ -14,19 +15,56 @@ export default class Game extends Phaser.Scene {
     }
     preload() {
         this.load.image("background", '../assets/background.png');
-        
+        this.load.image('tiles', '../assets/dungeon_tiles16.png');
+        this.load.tilemapTiledJSON('map', '../assets/map2.json');
+
         this.gameUI = new GameUI(this);
         this.gameUI.preload();
 
     }
     create() {
 
+        const debug = false
 
-        this.add.image(
-            VW / 2,
-            VH / 2,
-            "background"
-        );
+        const map = this.make.tilemap({ key: 'map' })
+        const tileset = map.addTilesetImage('dungeon', 'tiles')
+        const worldLayer = map.createLayer('world', tileset)
+
+          // Create the tilemap from the loaded JSON file
+        // const map = this.make.tilemap({ key: 'map' });
+        // const tileset = map.addTilesetImage('dungeon_tiles16', 'tilesImage');
+
+        // Add the tileset image to the map
+
+        // Create one or more layers, depending on how many layers you have in Tiled
+        // const worldLayer = map.createLayer('World Layer', tileset, 0, 0);
+      
+        // Optionally, set collision on a layer
+        worldLayer.setScale(4);
+
+        worldLayer.setCollisionByProperty({ collides: true });
+
+        // Debug graphics
+        if (debug){
+            const debugGraphics = this.add.graphics().setAlpha(0.75);
+            worldLayer.renderDebug(debugGraphics, {
+                tileColor: null, // Color of non-colliding tiles
+                collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+                faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+            });
+    
+            worldLayer.forEachTile(tile => {
+                if (tile.properties.collides) {
+                  console.log(`Tile ${tile.id} at ${tile.x},${tile.y} collides`);
+                }
+              });
+        }
+       
+        // this.add.image(
+        //     VW / 2,
+        //     VH / 2,
+        //     "background"
+        // );
 
 
         const playerSize = 50
@@ -35,6 +73,12 @@ export default class Game extends Phaser.Scene {
         player = this.add.polygon(VW/2, VH/2, [0, -halfPlayerSize, halfPlayerSize, halfPlayerSize, -halfPlayerSize, halfPlayerSize], 0xffffff);
 
         player.setOrigin(0, 3/halfPlayerSize); // move the player up just a tidge
+
+        this.physics.add.existing(player);
+        player.body.setSize(50, 50); // Set the size of the physics body
+        // player.body.setCollideWorldBounds(true);
+
+        this.physics.add.collider(player, worldLayer);
 
         const inventory = player.inventory = new Inventory();
         player.health = 100
@@ -65,10 +109,10 @@ export default class Game extends Phaser.Scene {
 
         this.shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
-        const debug = false
 
         if (debug){
             addCenterLines(this)
+            enableCameraZoom(this)
         }
         
         // Set camera to follow the player
@@ -126,7 +170,7 @@ export default class Game extends Phaser.Scene {
        
 
     // Apply the calculated movements to the player's position.
-    player.x += moveX * (this.game.loop.delta / 1000);
-    player.y += moveY * (this.game.loop.delta / 1000);
+    player.body.setVelocityX(moveX * (this.game.loop.delta / 20));
+    player.body.setVelocityY(moveY * (this.game.loop.delta / 20));
     }
 }

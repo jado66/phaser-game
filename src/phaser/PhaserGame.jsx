@@ -16,8 +16,13 @@ const PhaserGame = () => {
         height: VH,
         backgroundColor: '#AFE1AF', // Set your desired background color here
         scene: [Game],
-        parent: 'phaser-game' // Attach the canvas to the specified div
-
+        parent: 'phaser-game', // Attach the canvas to the specified div,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                debug: false
+            }
+        },
     };
 
     const game = new Phaser.Game(config);

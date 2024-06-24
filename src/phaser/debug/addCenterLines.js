@@ -6,17 +6,17 @@ export function addCenterLines(scene){
     // Set line style: width, color, and alpha
     graphics.lineStyle(2, 0xff0000, 1); // Red color
     
-    // Draw horizontal line at the center
-    graphics.beginPath();
-    graphics.moveTo(0, VH / 2);
-    graphics.lineTo(VW, VH / 2);
-    graphics.closePath();
-    graphics.strokePath();
-    
-    // Draw vertical line at the center
-    graphics.beginPath();
-    graphics.moveTo(VW / 2, 0);
-    graphics.lineTo(VW / 2, VH);
-    graphics.closePath();
-    graphics.strokePath();
+  // Draw horizontal line at the center
+  graphics.beginPath();
+  graphics.moveTo(-VW * 1000, VH / 2);   // Start far left off-screen
+  graphics.lineTo(VW * 1000, VH / 2);    // End far right off-screen
+  graphics.closePath();
+  graphics.strokePath();
+  
+  // Draw vertical line at the center
+  graphics.beginPath();
+  graphics.moveTo(VW / 2, -VH * 1000);   // Start far top off-screen
+  graphics.lineTo(VW / 2, VH * 1000);    // End far bottom off-screen
+  graphics.closePath();
+  graphics.strokePath();
 }

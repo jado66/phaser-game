@@ -6,6 +6,7 @@ import { enableCameraZoom } from "../debug/enableCameraZoom";
 import { addDebugTileCollisionColors } from "../debug/colorCollisionTiles";
 import { addPlayerCollisionBounds } from "../debug/addPlayerCollisionBounds";
 import { Berry } from "../game-components/dropped-items/Berry";
+import { Monster } from "../engine/Monster";
 
 let cursors
 export let player
@@ -21,6 +22,7 @@ export default class Game extends Phaser.Scene {
         this.load.image("background", '../assets/background.png');
         this.load.image('tiles', '../assets/dungeon_tiles16.png');
         this.load.image('berryTexture','../assets/berryTexture.png')
+        this.load.image('monsterTexture','../assets/monster.png')
         this.load.tilemapTiledJSON('map', '../assets/map2.json');
 
         this.gameUI = new GameUI(this);
@@ -97,11 +99,16 @@ export default class Game extends Phaser.Scene {
 
         const berries = createRandomBerries(this, worldLayer, 10)
 
+        const monster1 = new Monster(this, 200, 200, 'monsterTexture', 'Monster1')
+        const monster2 = new Monster(this, 202, 300, 'monsterTexture', 'Monster2')
+        this.monsters = [monster1, monster2]
 
     }
-    update() {
+    update(time, delta) {
 
         this.gameUI.update()
+
+        this.monsters.forEach(character => character.update(time, delta));
 
         let speed = 200;
 
@@ -148,12 +155,12 @@ export default class Game extends Phaser.Scene {
        
 
     // Apply the calculated movements to the player's position.
-    player.body.setVelocityX(moveX * (this.game.loop.delta / 20));
-    player.body.setVelocityY(moveY * (this.game.loop.delta / 20));
+        player.body.setVelocityX(moveX * (this.game.loop.delta / 20));
+        player.body.setVelocityY(moveY * (this.game.loop.delta / 20));
     }
 }
 
-
+// Debug items
 function getRandomPosition(scene, worldLayer) {
     let x, y, tile;
     do {

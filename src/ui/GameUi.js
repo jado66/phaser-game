@@ -2,6 +2,7 @@ class GameUI {
     constructor(scene) {
         this.scene = scene;
         this.isShowInventory = false;
+        this.inventoryText = ''
         this.player = null
     }
 
@@ -126,13 +127,14 @@ class GameUI {
         // Update the health and stamina bars based on player's current values
         this.updateHealthBar(this.player.health);
         this.updateStaminaBar(this.player.stamina);
+        this.inventoryText = this.player.inventory.listItemsDebugJson()
+        this.inventoryDisplay.setText(this.inventoryText);
     }
 
     
     showInventoryJson() {
-        const items = this.player.inventory.listItemsDebugJson();
         this.inventoryDisplay.setVisible(true);
-        this.inventoryDisplay.setText(items);
+        this.inventoryDisplay.setText(this.inventoryText);
     }
     hideInventory() {
         if (this.inventoryDisplay) {
@@ -148,6 +150,10 @@ class GameUI {
     updateStaminaBar(value) {
         // Update stamina bar width based on the value (e.g., player stamina)
         this.staminaBar.width = value * 2; // assuming value is out of 100
+    }
+
+    updateInventory(){
+        
     }
 }
 

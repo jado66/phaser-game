@@ -5,20 +5,22 @@ import Inventory from "../engine/Inventory";
 import { enableCameraZoom } from "../debug/enableCameraZoom";
 import { addDebugTileCollisionColors } from "../debug/colorCollisionTiles";
 import { addPlayerCollisionBounds } from "../debug/addPlayerCollisionBounds";
+import { Berry } from "../game-components/dropped-items/Berry";
 
-let player
 let cursors
+export let player
 
 export default class Game extends Phaser.Scene {
     constructor() {
         super("game");
         this.debug = globalDebug
-      }
+    }
     init() {
     }
     preload() {
         this.load.image("background", '../assets/background.png');
         this.load.image('tiles', '../assets/dungeon_tiles16.png');
+        this.load.image('berryTexture','../assets/berryTexture.png')
         this.load.tilemapTiledJSON('map', '../assets/map2.json');
 
         this.gameUI = new GameUI(this);
@@ -91,6 +93,11 @@ export default class Game extends Phaser.Scene {
 
         // Define deadzone for the camera to only move when player reaches edges
         this.cameras.main.setDeadzone(VW / 2, VH / 2);
+
+
+        const berries = createRandomBerries(this, worldLayer, 10)
+
+
     }
     update() {
 
@@ -145,3 +152,27 @@ export default class Game extends Phaser.Scene {
     player.body.setVelocityY(moveY * (this.game.loop.delta / 20));
     }
 }
+
+
+function getRandomPosition(scene, worldLayer) {
+    let x, y, tile;
+    do {
+      x = Phaser.Math.Between(0, scene.scale.width);
+      y = Phaser.Math.Between(0, scene.scale.height);
+      tile = worldLayer.getTileAtWorldXY(x, y);
+    } while (tile && tile.properties.collides);
+    return { x, y };
+  }
+  
+  function createRandomBerries(scene, worldLayer, count) {
+    const berries = [];
+    for (let i = 0; i < count; i++) {
+      const { x, y } = getRandomPosition(scene, worldLayer);
+      const berry = new Berry(scene, x, y);
+      berry.setScale(4); // Scale the berry by a factor of 4
+
+      berries.push(berry);
+
+    }
+    return berries;
+  }

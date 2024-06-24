@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="2" nextobjectid="1">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="2" nextobjectid="1">
  <editorsettings>
   <export target="map2.tmj" format="json"/>
  </editorsettings>
  <tileset firstgid="1" name="dungeon" tilewidth="16" tileheight="16" tilecount="216" columns="18">
-  <image source="../../../Downloads/dungeon_tiles.png" width="288" height="192"/>
+  <image source="dungeon_tiles16.png" width="288" height="192"/>
   <tile id="0">
    <objectgroup draworder="index" id="2">
     <object id="1" x="0" y="0" width="16" height="16"/>

@@ -1,5 +1,5 @@
 import GameUI from "@/ui/GameUi";
-import { VW, VH } from "../PhaserGame";
+import { VW, VH, globalDebug } from "../PhaserGame";
 import { addCenterLines } from "../debug/addCenterLines";
 import Inventory from "../engine/Inventory";
 import { enableCameraZoom } from "../debug/enableCameraZoom";
@@ -10,6 +10,7 @@ let cursors
 export default class Game extends Phaser.Scene {
     constructor() {
         super("game");
+        this.debug = globalDebug
       }
     init() {
     }
@@ -23,8 +24,6 @@ export default class Game extends Phaser.Scene {
 
     }
     create() {
-
-        const debug = false
 
         const map = this.make.tilemap({ key: 'map' })
         const tileset = map.addTilesetImage('dungeon', 'tiles')
@@ -45,7 +44,7 @@ export default class Game extends Phaser.Scene {
         worldLayer.setCollisionByProperty({ collides: true });
 
         // Debug graphics
-        if (debug){
+        if (this.debug){
             const debugGraphics = this.add.graphics().setAlpha(0.75);
             worldLayer.renderDebug(debugGraphics, {
                 tileColor: null, // Color of non-colliding tiles
@@ -58,6 +57,9 @@ export default class Game extends Phaser.Scene {
                   console.log(`Tile ${tile.id} at ${tile.x},${tile.y} collides`);
                 }
               });
+
+              this.physics.world.createDebugGraphic().setVisible(true);
+
         }
        
         // this.add.image(
@@ -110,7 +112,7 @@ export default class Game extends Phaser.Scene {
         this.shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
 
-        if (debug){
+        if (this.debug){
             addCenterLines(this)
             enableCameraZoom(this)
         }

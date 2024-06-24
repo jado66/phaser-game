@@ -8,24 +8,30 @@ import Game from './scenes/Game';
 export const VW = 1400 //Viewport width
 export const VH = 800 //Viewport height
 
-const PhaserGame = () => {
-  useEffect(() => {
-    const config = {
-        type: Phaser.AUTO,
-        width: VW,
-        height: VH,
-        backgroundColor: '#AFE1AF', // Set your desired background color here
-        scene: [Game],
-        parent: 'phaser-game', // Attach the canvas to the specified div,
-        physics: {
-            default: 'arcade',
-            arcade: {
-                debug: false
-            }
-        },
-    };
+const config = {
+    type: Phaser.AUTO,
+    width: VW,
+    height: VH,
+    backgroundColor: '#AFE1AF', // Set your desired background color here
+    scene: [Game],
+    parent: 'phaser-game', // Attach the canvas to the specified div,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false
+        }
+    },
+};
 
+export var globalDebug = config.physics.arcade.debug;
+
+
+const PhaserGame = ({debug = false}) => {
+  useEffect(() => {
+    
     const game = new Phaser.Game(config);
+
+    globalDebug = debug
 
     return () => {
       game.destroy(true);

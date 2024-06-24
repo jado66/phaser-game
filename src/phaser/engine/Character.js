@@ -20,6 +20,8 @@ export class Character extends Phaser.GameObjects.Sprite {
         // Configure collision size
         this.body.setSize(collisionSize.width, collisionSize.height);
 
+        scene.physics.add.collider(this, scene.worldLayer);
+
          // Initial setup for wandering
          this.wanderDirection = new Phaser.Math.Vector2(0);
          this.wanderSpeed = 50; // Adjust speed as required

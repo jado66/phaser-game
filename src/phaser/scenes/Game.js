@@ -35,9 +35,10 @@ export default class Game extends Phaser.Scene {
         const tileset = map.addTilesetImage('dungeon', 'tiles')
         const worldLayer = map.createLayer('world', tileset)
 
-        worldLayer.setScale(4);
+        this.worldLayer = worldLayer
+        this.worldLayer.setScale(4);
 
-        worldLayer.setCollisionByProperty({ collides: true });
+        this.worldLayer.setCollisionByProperty({ collides: true });
 
         const playerSize = 50
         const halfPlayerSize = playerSize/2
@@ -52,11 +53,25 @@ export default class Game extends Phaser.Scene {
 
         // player.body.setCollideWorldBounds(true);
 
-        this.physics.add.collider(player, worldLayer);
+        this.physics.add.collider(player, this.worldLayer);
 
         const inventory = player.inventory = new Inventory();
         player.health = 100
         player.stamina = 100
+
+        player.takeDamage = (amount) => {
+            player.health -= amount;
+            if (player.health < 0) {
+                player.health = 0;
+                alert("player is dead");
+                this.restart();
+            }
+        };
+
+        this.restart = () => {
+            // Logic to reset the game state and restart the scene
+            this.scene.restart(); // This will restart the scene
+        };
 
         this.gameUI.create(player);
 
@@ -87,7 +102,7 @@ export default class Game extends Phaser.Scene {
             addCenterLines(this)
             addPlayerCollisionBounds(this)
             enableCameraZoom(this)
-            addDebugTileCollisionColors(this, worldLayer)
+            addDebugTileCollisionColors(this, this.worldLayer)
         }
         
         // Set camera to follow the player
@@ -97,7 +112,7 @@ export default class Game extends Phaser.Scene {
         this.cameras.main.setDeadzone(VW / 2, VH / 2);
 
 
-        const berries = createRandomBerries(this, worldLayer, 10)
+        const berries = createRandomBerries(this, this.worldLayer, 10)
 
         const monster1 = new Monster(this, 200, 200, 'monsterTexture', 'Monster1')
         const monster2 = new Monster(this, 202, 300, 'monsterTexture', 'Monster2')

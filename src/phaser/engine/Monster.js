@@ -1,13 +1,22 @@
+import { player } from '../scenes/Game';
 import { Character } from './Character';
 
 export class Monster extends Character {
-    constructor(scene, x, y, texture, name, maxHealth = 100, maxStamina = 50, attackPower = 10, loot = null) {
+    constructor(scene, x, y, texture, name, maxHealth = 100, maxStamina = 50, attackPower = 1, loot = null) {
         super(scene, x, y, texture, name, maxHealth, maxStamina, false); // Monsters are not friendly by default
 
         // Additional monster-specific properties
         this.attackPower = attackPower;
         this.loot = loot;
+
+        scene.physics.add.overlap(this, player, this.attackPlayer, null, this);
+
     }
+
+    attackPlayer(){
+        player.takeDamage(this.attackPower)
+    }
+
 
     attack(target) {
         if (target instanceof Character && !this.friendly) {

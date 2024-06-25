@@ -73,8 +73,11 @@ export default class Game extends Phaser.Scene {
         this.pointerPosition = { x: player.x, y: player.y };
 
         this.input.on('pointermove', pointer => {
-            this.pointerPosition.x = pointer.worldX;
-            this.pointerPosition.y = pointer.worldY;
+              // Calculate the angle between the player and the pointer
+              const angle = Phaser.Math.Angle.Between(player.x, player.y, pointer.worldX, pointer.worldY);
+              // Set the player's rotation to this angle
+              this.playerDirection = angle + Math.PI / 2;
+           
             
         });
 
@@ -123,7 +126,7 @@ export default class Game extends Phaser.Scene {
         let moveY = 0;
     
 
-        const playerAngle = player.rotation - Math.PI / 2; // Adjust rotation since we added PI/2 during the update
+        const playerAngle = this.playerDirection - Math.PI / 2; // Adjust rotation since we added PI/2 during the update
 
         if (this.shiftKey.isDown && player.stamina >= 0 && (cursors.up.isDown || this.wasdKeys.up.isDown)){
             player.stamina -= 1 * this.game.loop.delta / 1000 * 50

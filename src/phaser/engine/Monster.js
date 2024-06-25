@@ -11,6 +11,26 @@ export class Monster extends Character {
 
         scene.physics.add.overlap(this, player, this.attackPlayer, null, this);
 
+
+    
+        // Detection radius
+        this.detectionRadius = 200; // Adjust as needed
+    
+        scene.physics.add.overlap(this, player, this.attackPlayer, null, this);
+    
+        this.scene.events.on('update', this.update, this);
+    }
+
+    update() {
+
+        super.update()
+        // Check distance to player
+        const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+
+        if (distanceToPlayer < this.detectionRadius) {
+            // Move towards the player
+            this.scene.physics.moveToObject(this, player, 100); // Speed can be adjusted
+        } 
     }
 
     attackPlayer(){

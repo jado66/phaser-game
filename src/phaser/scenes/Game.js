@@ -75,6 +75,7 @@ export default class Game extends Phaser.Scene {
         this.input.on('pointermove', pointer => {
             this.pointerPosition.x = pointer.worldX;
             this.pointerPosition.y = pointer.worldY;
+            
         });
 
         // Enable cursor keys for movement
@@ -112,7 +113,7 @@ export default class Game extends Phaser.Scene {
     }
     update(time, delta) {
 
-        this.gameUI.update();
+        this.gameUI.update()
 
         this.monsters.forEach(character => character.update(time, delta));
 
@@ -120,17 +121,13 @@ export default class Game extends Phaser.Scene {
 
         let moveX = 0;
         let moveY = 0;
-
-        // Update the player's rotation based on the stored cursor position
-        const pointerPosition = this.pointerPosition;
-        const angle = Phaser.Math.Angle.Between(player.x, player.y, pointerPosition.x, pointerPosition.y);
-        player.rotation = angle + Math.PI / 2;
+    
 
         const playerAngle = player.rotation - Math.PI / 2; // Adjust rotation since we added PI/2 during the update
 
         if (this.shiftKey.isDown && player.stamina >= 0 && (cursors.up.isDown || this.wasdKeys.up.isDown)){
-            player.stamina -= 1 * this.game.loop.delta / 1000 * 50;
-            speed = speed * 2;
+            player.stamina -= 1 * this.game.loop.delta / 1000 * 50
+            speed = speed * 2
         }
 
         // Movement towards or away from the cursor
@@ -150,20 +147,28 @@ export default class Game extends Phaser.Scene {
             moveX -= Math.cos(playerAngle + Math.PI / 2) * speed;
             moveY -= Math.sin(playerAngle + Math.PI / 2) * speed;
         }
+    
+        if (player.stamina < 100){
 
-        if (player.stamina < 100) {
             if (!moveX && !moveY){
-                player.stamina += 1 * this.game.loop.delta / 1000 * 5;
-            } else if (player.stamina > 10){
-                player.stamina += 1 * this.game.loop.delta / 1000 * 2.5;
+                player.stamina += 1 * this.game.loop.delta / 1000 * 5
+            }
+            else if (player.stamina > 10){
+                player.stamina += 1 * this.game.loop.delta / 1000 * 2.5
             }
         }
+       
 
-        player.setAngle(0);
-
-        // Apply the calculated movements to the player's position.
+    // Apply the calculated movements to the player's position.
         player.body.setVelocityX(moveX * (this.game.loop.delta / 20));
         player.body.setVelocityY(moveY * (this.game.loop.delta / 20));
+    
+
+       
+
+
+        // Apply the calculated movements to the player's position.
+       
     }
 }
 

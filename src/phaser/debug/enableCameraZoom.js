@@ -2,7 +2,7 @@ export function enableCameraZoom(scene) {
     const camera = scene.cameras.main;
 
     // Set initial camera zoom level
-    camera.setZoom(1);
+    // camera.setZoom();
 
     // Add a key input listener for the "-" key to zoom out
     const zoomOutKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS);

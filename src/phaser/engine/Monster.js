@@ -1,42 +1,47 @@
 import { player } from '../scenes/Game';
 import { Character } from './Character';
+  
+const defaultProperties = {
+    maxHealth: 100, 
+    maxStamina: 50, 
+    friendly: false, 
+    wanderSpeed: 15,
+    followSpeed: 35,
+    sightRadius: 100,
+    collisionSize: { width: 32, height: 32 },
+    attackPower: 50,
+    loot: null
+};
 
 export class Monster extends Character {
-    constructor(scene, x, y, texture, name, maxHealth = 100, maxStamina = 50, attackPower = 1, loot = null) {
-        super(scene, x, y, texture, name, maxHealth, maxStamina, false); // Monsters are not friendly by default
+    constructor(scene, x, y, texture, name, overrideProperities = {}) {
+        const properties = { ...defaultProperties, ...overrideProperities };
+        super(scene, x, y, texture, name, properties); 
+
+        const { attackPower, loot } = properties;
 
         // Additional monster-specific properties
         this.attackPower = attackPower;
         this.loot = loot;
 
         scene.physics.add.overlap(this, player, this.attackPlayer, null, this);
-
-
-    
-        // Detection radius
-        this.detectionRadius = 200; // Adjust as needed
-    
-        scene.physics.add.overlap(this, player, this.attackPlayer, null, this);
-    
-        this.scene.events.on('update', this.update, this);
     }
 
-    update() {
 
-        super.update()
-        // Check distance to player
-        const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+    update(time, delta) {
+        super.update();
 
-        if (distanceToPlayer < this.detectionRadius) {
-            // Move towards the player
-            this.scene.physics.moveToObject(this, player, 100); // Speed can be adjusted
-        } 
+        if (Phaser.Math.Distance.Between(this.x,this.y,player.x,player.y)< this.sightRadius){
+            this.follow(player)
+        }
+        else{
+            this.stopFollowing()
+        }    
     }
-
+ 
     attackPlayer(){
         player.takeDamage(this.attackPower)
     }
-
 
     attack(target) {
         if (target instanceof Character && !this.friendly) {

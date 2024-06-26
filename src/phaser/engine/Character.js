@@ -1,5 +1,17 @@
+import { globalDebug } from "../PhaserGame";
+import { debugContainer, pathManager, player } from "../scenes/Game";
+
 export class Character extends Phaser.GameObjects.Sprite {
-    constructor(scene, x, y, texture, name, maxHealth = 100, maxStamina = 50, friendly = true, collisionSize = { width: 32, height: 32 }) {
+    constructor(scene, x, y, texture, name, { 
+            maxHealth = 100, 
+            maxStamina = 50, 
+            friendly = true, 
+            wanderSpeed = 15,
+            followSpeed = 35,
+            sightRadius = 100,
+            collisionSize = { width: 32, height: 32 } 
+        } = {}) {
+
         super(scene, x, y, texture);
 
         // Add this character to the scene
@@ -7,6 +19,8 @@ export class Character extends Phaser.GameObjects.Sprite {
 
         // Enable physics on the character
         scene.physics.world.enable(this);
+        scene.physics.add.collider(this, scene.worldLayer);
+        this.body.setSize(collisionSize.width, collisionSize.height);
 
         // Set up character properties
         this.name = name;
@@ -16,51 +30,118 @@ export class Character extends Phaser.GameObjects.Sprite {
         this.stamina = maxStamina;
         this.friendly = friendly;
         this.collisionSize = collisionSize;
+        this.wanderSpeed = wanderSpeed; 
+        this.sightRadius = sightRadius
+        this.followSpeed = followSpeed,
 
-        // Configure collision size
-        this.body.setSize(collisionSize.width, collisionSize.height);
+        // Pathfinding
+        this.path = null;
+        this.followTarget = null
+        this.setupFindNewPath()
 
-        scene.physics.add.collider(this, scene.worldLayer);
+        // Initial setup for wandering
+        this.wanderDirection = null
+        this.setupWander();
+        
+        // Debug visuals     
 
-         // Initial setup for wandering
-         this.wanderDirection = new Phaser.Math.Vector2(0);
-         this.wanderSpeed = 50; // Adjust speed as required
-         this.setupWander();
+        this.sightGraphicsColor = 0xff0000
+
+        this.sightGraphics = scene.add.graphics({ lineStyle: { width: .5, color: this.sightGraphicsColor, alpha: 1 } })
+        this.stateText = scene.add.text(x-8, y - 20, 'wander', { fontSize: '8px', fill: '#fff' }).setVisible(false);
+        this.pathGraphics = scene.add.graphics({ lineStyle: { width: .5, color: 0x00ff00, alpha: 1 } }).setVisible(false);
+        this.currentState = 'wander';
+        debugContainer.add([this.pathGraphics, this.sightGraphics, this.stateText])
+
+        if (globalDebug){
+            this.sightGraphics.setVisible(true);
+            this.stateText.setVisible(true);
+            this.pathGraphics.setVisible(true);
+        }
+
+        //  Setup looking for new path
+
+        
     }
 
-    takeDamage(amount) {
-        this.health -= amount;
-        if (this.health < 0) {
-            this.health = 0;
-            this.die();
+    update(time, delta) {
+        // Apply movement in the current direction
+
+        this.body.setVelocity(this.wanderDirection.x * this.wanderSpeed, this.wanderDirection.y * this.wanderSpeed);
+
+        if (this.currentState === 'following' && this.followTarget){
+           let distanceToTarget = Phaser.Math.Distance.Between(this.x, this.y, this.followTarget.x, this.followTarget.y);
+            let directFollowThreshold = 20; // Distance threshold to switch to direct follow
+
+            if (distanceToTarget < directFollowThreshold) {
+                // Move directly towards the target
+                this.scene.physics.moveTo(this, this.followTarget.x, this.followTarget.y, this.followSpeed);
+            } else {
+                // Follow the path
+                if (!this.path) {
+                    this.path = pathManager.findPath(this, this.followTarget);
+                }
+                if (this.path && this.path.length > 0) {
+                    // Move towards the next point in the path
+                    this.scene.physics.moveTo(this, this.path[0].x, this.path[0].y, this.followSpeed);
+
+                    // Check if the character reached the next point
+                    if (Phaser.Math.Distance.Between(this.x, this.y, this.path[0].x, this.path[0].y) < 4) {
+                        // Remove the reached point from the path
+                        this.path.shift();
+                    }
+                }
+
+                this.drawPath()
+            }
+        }
+
+        if (globalDebug){
+            this.drawDetectionRadius();
+            this.updateStateText();
         }
     }
 
-    recoverHealth(amount) {
-        this.health += amount;
-        if (this.health > this.maxHealth) {
-            this.health = this.maxHealth;
+    follow(target){
+        this.followTarget = target
+        this.changeState('following')
+    }
+
+    stopFollowing(){
+        this.followTarget = null
+         this.changeState('wander')
+
+        if (this.pathGraphics){
+            this.pathGraphics.clear();
         }
     }
 
-    useStamina(amount) {
-        this.stamina -= amount;
-        if (this.stamina < 0) {
-            this.stamina = 0;
-        }
+    changeState(newState){
+        this.stateText.text = newState
+        this.currentState = newState
     }
 
-    recoverStamina(amount) {
-        this.stamina += amount;
-        if (this.stamina > this.maxStamina) {
-            this.stamina = this.maxStamina;
-        }
+    die() {
+        this.destroy();
+        console.log(`${this.name} has died.`);
     }
 
+    // Pathfinding and movement
     setupWander() {
+        this.wanderDirection = new Phaser.Math.Vector2(0);
+
         this.scene.time.addEvent({
             delay: Phaser.Math.Between(1000, 3000), // Change direction every 1-3 seconds
             callback: this.changeDirection,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    setupFindNewPath(){
+        this.scene.time.addEvent({
+            delay: 500,
+            callback: this.updatePath,
             callbackScope: this,
             loop: true
         });
@@ -76,13 +157,86 @@ export class Character extends Phaser.GameObjects.Sprite {
         this.wanderDirection = Phaser.Utils.Array.GetRandom(directions);
     }
 
-    update(time, delta) {
-        // Apply movement in the current direction
-        this.body.setVelocity(this.wanderDirection.x * this.wanderSpeed, this.wanderDirection.y * this.wanderSpeed);
+    updatePath() {
+        if (!this.currentState === 'following'){
+            return
+        }
+
+        this.path = pathManager.findPath(this, player);
+        if (!this.path){
+            const offsets = [6, 12, -6, -12];
+
+            // Check for paths with slight offsets for 'this'.
+            for (let offset of offsets) {
+                this.path = pathManager.findPath(
+                    { x: this.x + offset, y: this.y },
+                    player
+                );
+                if (this.path) return;
+    
+                this.path = pathManager.findPath(
+                    { x: this.x, y: this.y + offset },
+                    player
+                );
+                if (this.path) return;
+            }
+    
+            // Check for paths with slight offsets for 'player'.
+            for (let offset of offsets) {
+                this.path = pathManager.findPath(
+                    this,
+                    { x: player.x + offset, y: player.y }
+                );
+                if (this.path) return;
+    
+                this.path = pathManager.findPath(
+                    this,
+                    { x: player.x, y: player.y + offset }
+                );
+                if (this.path) return;
+            }
+        }
     }
 
-    die() {
-        this.destroy();
-        console.log(`${this.name} has died.`);
+    // Debug
+    drawPath() {
+        // Clear previous path graphics
+        this.pathGraphics.clear();
+
+        if (this.path && this.path.length > 0) {
+            this.pathGraphics.beginPath();
+
+            // Move to the first point in the path
+            this.pathGraphics.moveTo(this.x, this.y);
+            
+            // Draw lines to each subsequent point in the path
+            for (let i = 0; i < this.path.length; i++) {
+                this.pathGraphics.lineTo(this.path[i].x, this.path[i].y);
+            }
+
+            this.pathGraphics.strokePath();
+        }
     }
+
+    updateStateText() {
+        this.stateText.setPosition(this.x-8, this.y - 20);
+    }
+
+    changeSightGraphicsColor(color) {
+        this.sightGraphicsColor = color;
+        this.drawDetectionRadius();
+    }
+    
+    
+    drawDetectionRadius() {
+        this.sightGraphics.clear();
+        this.sightGraphics.fillStyle(this.sightGraphicsColor, 0.1); // 0.5 is the alpha for 50% transparency
+    
+        // Draw the filled circle
+        this.sightGraphics.fillCircle(this.x, this.y, this.sightRadius);
+        this.sightGraphics.lineStyle(.5, this.sightGraphicsColor); // Use this.sightGraphicsColor
+        this.sightGraphics.strokeCircle(this.x, this.y, this.sightRadius);
+    }
+
+    
 }

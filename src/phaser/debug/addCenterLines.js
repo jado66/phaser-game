@@ -1,4 +1,5 @@
 import { VH, VW } from '@/constants/globalConstants';
+import { debugContainer } from '../scenes/Game';
 
 export function addCenterLines(scene){
     const graphics = scene.add.graphics();
@@ -19,4 +20,7 @@ export function addCenterLines(scene){
   graphics.lineTo(VW / 2, VH * 1000);    // End far bottom off-screen
   graphics.closePath();
   graphics.strokePath();
+
+  debugContainer.add(graphics)
+
 }

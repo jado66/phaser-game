@@ -1,3 +1,5 @@
+import { uiContainer } from "@/phaser/scenes/Game";
+
 class GameUI {
     constructor(scene) {
         this.scene = scene;
@@ -14,8 +16,6 @@ class GameUI {
         this.player = player
 
         // Create a container for UI elements
-        this.uiContainer = this.scene.add.container(0, 0);
-
         // Create a circular minimap
         const mapCircle = this.scene.add.circle(
             this.scene.sys.canvas.width - 100,
@@ -23,22 +23,21 @@ class GameUI {
             50, // Radius of the circle
             0x00bfff // Light blue color
         );
-        mapCircle.setScrollFactor(0);
 
         // Create health bar
 
         const barWidth = 200
 
         this.healthBarBackground = this.scene.add.rectangle(18, 18, barWidth+4, 22, 0x000000);
-        this.healthBarBackground.setOrigin(0, 0).setScrollFactor(0);
+        this.healthBarBackground.setOrigin(0, 0)
         this.healthBar = this.scene.add.rectangle(20, 20, barWidth, 18, 0xff0000);
-        this.healthBar.setOrigin(0, 0).setScrollFactor(0);
+        this.healthBar.setOrigin(0, 0)
 
         // Create stamina bar
         this.staminaBarBackground = this.scene.add.rectangle(18, 40, barWidth+4, 22, 0x000000);
-        this.staminaBarBackground.setOrigin(0, 0).setScrollFactor(0);
+        this.staminaBarBackground.setOrigin(0, 0)
         this.staminaBar = this.scene.add.rectangle(20, 42, barWidth, 18, 0x00ff00);
-        this.staminaBar.setOrigin(0, 0).setScrollFactor(0);
+        this.staminaBar.setOrigin(0, 0)
 
         // Create the background rectangle for the inventory button
         const buttonX = this.scene.sys.canvas.width / 2;
@@ -53,7 +52,7 @@ class GameUI {
             buttonHeight, 
             0x7c3f00 // Background color in hexadecimal (black in this case)
         );
-        this.inventoryButtonBackground.setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.inventoryButtonBackground.setOrigin(0.5, 0.5)
 
         // Create inventory button text
         this.inventoryButton = this.scene.add.text(
@@ -62,7 +61,7 @@ class GameUI {
             'Inventory',
             { fontSize: '24px', fill: '#ffffff' }
         );
-        this.inventoryButton.setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.inventoryButton.setOrigin(0.5, 0.5)
         this.inventoryButton.setInteractive({ useHandCursor: true });
 
         this.inventoryDisplay = this.scene.add.text(
@@ -71,7 +70,7 @@ class GameUI {
             '', 
             { fontSize: '16px', fill: '#000000', backgroundColor: '#DAA06D', padding: { x: 10, y: 10 }, wordWrap: { width: 300 } }
         );
-        this.inventoryDisplay.setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.inventoryDisplay.setOrigin(0.5, 0.5)
         this.inventoryDisplay.setVisible(false);
 
         // Event listener for button click
@@ -95,7 +94,7 @@ class GameUI {
             buttonHeight, 
             0xE97451 // Background color in hexadecimal (black in this case)
         );
-        this.debugAddItemButtonBackground.setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.debugAddItemButtonBackground.setOrigin(0.5, 0.5)
 
         this.debugAddItemButton = this.scene.add.text(
             buttonX+buttonWidth+5,
@@ -103,7 +102,7 @@ class GameUI {
             'Add Item',
             { fontSize: '24px', fill: '#000000' }
         );
-        this.debugAddItemButton.setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.debugAddItemButton.setOrigin(0.5, 0.5)
         this.debugAddItemButton.setInteractive({ useHandCursor: true });
 
         this.debugAddItemButton.on('pointerdown', () => {
@@ -112,15 +111,19 @@ class GameUI {
         });
 
         // Add all elements to the container
-        this.uiContainer.add([
+        uiContainer.add([
             mapCircle,
             this.healthBarBackground,
             this.healthBar,
             this.staminaBarBackground,
             this.staminaBar,
             this.inventoryButtonBackground,
-            this.inventoryButton
+            this.inventoryButton,
+            this.debugAddItemButtonBackground,
+            this.debugAddItemButton
         ]);
+
+
     }
 
     update() {

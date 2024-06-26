@@ -224,7 +224,11 @@ export class Character extends Phaser.GameObjects.Sprite {
 
     changeSightGraphicsColor(color) {
         this.sightGraphicsColor = color;
-        this.drawDetectionRadius();
+
+        if (globalDebug){
+            this.drawDetectionRadius();
+
+        }
     }
     
     

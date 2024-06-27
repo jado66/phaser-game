@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 // Dynamically import PhaserGame without SSR
 const PhaserGame = dynamic(() => import('../phaser/PhaserGame'), { ssr: false });
 
-let _globalDebug = false; // initial value of globalDebug
+let _globalDebug = true; // initial value of globalDebug
 
 const debugListeners = [];
 

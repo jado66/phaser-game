@@ -57,13 +57,6 @@ export class Character extends Phaser.GameObjects.Sprite {
         this.stateText.setVisible(globalDebug.value);
         this.pathGraphics.setVisible(globalDebug.value);
 
-        onGlobalDebugChange(this.onGlobalDebugChange.bind(this));
-    }
-    
-    onGlobalDebugChange(isDebug) {
-        this.sightGraphics.setVisible(isDebug);
-        this.stateText.setVisible(isDebug)
-        this.pathGraphics.setVisible(isDebug)
     }
 
     update(time, delta) {

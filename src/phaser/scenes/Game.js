@@ -10,7 +10,7 @@ import { GreenMonster } from "../game-components/monsters/GreenMonster";
 import { RedMonster } from "../game-components/monsters/RedMonster";
 import { BlueMonster } from "../game-components/monsters/BlueMonster";
 import Player from "../game-components/player/Player";
-import { globalDebug } from "@/views";
+import { onGlobalDebugChange, globalDebug } from "@/views";
 
 let cursors;
 export let player1;
@@ -25,7 +25,8 @@ export let mainContainer
 export default class Game extends Phaser.Scene {
     constructor() {
         super("game");
-        this.debug = globalDebug;
+        onGlobalDebugChange(this.onGlobalDebugChange.bind(this));
+
     }
     init() {
     }
@@ -73,7 +74,7 @@ export default class Game extends Phaser.Scene {
         // pathManager.debugDrawPath(path, 0xffd900);
 
         
-        if (this.debug) {
+        if (globalDebug.value) {
             addCenterLines(this);
             addPlayerCollisionBounds(this);
             enableCameraZoom(this);
@@ -114,8 +115,14 @@ export default class Game extends Phaser.Scene {
         this.uiCamera.ignore([ mainContainer, debugContainer, this.monsters, berries, this.worldLayer, map, player1])
         this.mainCamera.ignore(uiContainer)
 
-
     }
+
+    onGlobalDebugChange(isDebug) {
+        if (debugContainer){
+            debugContainer.visible = isDebug;
+        }   
+    }
+
     update(time, delta) {
         this.gameUI.update()
         this.monsters.forEach(character => character.update(time, delta));

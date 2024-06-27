@@ -3,7 +3,6 @@
 // components/PhaserGame.js
 import { PhaserNavMeshPlugin } from "phaser-navmesh";
 import React, { useEffect } from 'react';
-import Phaser from 'phaser';
 import Game from './scenes/Game';
 
 export const VW = 1400 //Viewport width

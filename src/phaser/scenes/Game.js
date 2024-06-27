@@ -45,62 +45,21 @@ export default class Game extends Phaser.Scene {
     }
     create() {
 
+        this.createMap()
+
+
+
         mainContainer = this.add.container(0,0)
         uiContainer = this.add.container(0, 0);
         debugContainer = this.add.container(0, 0);
 
-        var camera = this.cameras.main
-        camera.setZoom(cameraZoom);  // Zooms the camera to 2x
-
-        const map = this.make.tilemap({ key: 'map' });
-        const tileset = map.addTilesetImage('dungeon', 'tiles');
-        const worldLayer = map.createLayer('world', tileset);
-
-        worldLayer.setCollisionByProperty({ collides: true });
-
-        const meshShrinkAmount = 8; // Adjust this value based on your game's needs
-
-        pathManager = this.navMeshPlugin.buildMeshFromTilemap("mesh", map, [worldLayer], undefined, meshShrinkAmount);
-
-        this.worldLayer = worldLayer;
-
-        pathManager.enableDebug();
-        // pathManager.debugDrawMesh({
-        //     drawCentroid: true,
-        //     drawBounds: false,
-        //     drawNeighbors: true,
-        //     drawPortals: true
-        //   });
-        // pathManager.debugDrawPath(path, 0xffd900);
-
-        
-        if (globalDebug.value) {
-            addCenterLines(this);
-            addPlayerCollisionBounds(this);
-            enableCameraZoom(this);
-            addDebugTileCollisionColors(this, this.worldLayer);
-        }
-
-        // Set camera to follow the player
-        this.mainCamera = this.cameras.main
-        this.mainCamera.setZoom(cameraZoom);
-
         player1 = new Player(this, 20, 60);
         this.player1 = player1
-        this.mainCamera.startFollow(player1);
-
-
-
-        this.gameUI = new GameUI(this);
+    
+        this.gameUI = new GameUI(this, mainContainer, debugContainer);
         this.gameUI.create();
 
-
-        this.uiCamera = this.cameras.add(0, 0, VW, VH)
-
-        // Define deadzone for the camera to only move when player reaches edges
-        this.mainCamera.setDeadzone(VW / 8, VH / 8);
-
-        const berries = createRandomBerries(this, this.worldLayer, 10);
+        this.berries = createRandomBerries(this, this.worldLayer, 10);
 
         this.monsters = []
         const monster1 = new GreenMonster(this, 265, 250)
@@ -110,11 +69,47 @@ export default class Game extends Phaser.Scene {
         this.monsters.push(monster3)
         this.monsters.push(monster1)
         
-        mainContainer.add([this.worldLayer, this.player1, ...berries, ...this.monsters]) // TODO don't know why this doens't work
+        mainContainer.add([this.worldLayer, this.player1, ...this.berries, ...this.monsters]) 
 
-        this.uiCamera.ignore([ mainContainer, debugContainer, this.monsters, berries, this.worldLayer, map, player1])
+        if (globalDebug.value) {
+            addCenterLines(this);
+            addPlayerCollisionBounds(this);
+            enableCameraZoom(this);
+            addDebugTileCollisionColors(this, this.worldLayer);
+        }
+
+        this.createCameras()
+    }
+
+    createCameras(){
+        this.mainCamera = this.cameras.main
+        this.mainCamera.setZoom(cameraZoom);
+        this.mainCamera.startFollow(player1);
+        this.mainCamera.setDeadzone(VW / 16, VH / 16);
         this.mainCamera.ignore(uiContainer)
 
+
+        this.uiCamera = this.cameras.add(0, 0, VW, VH)
+        this.uiCamera.ignore([ mainContainer, debugContainer, this.monsters, this.berries, this.worldLayer, player1])
+    
+        // this.miniMapCamera = this.cameras.add(0, 0, VW, VH)
+        // this.miniMapCamera.startFollow(player1);
+        // this.miniMapCamera.setZoom(1.5/cameraZoom)
+        // this.miniMapCamera.ignore([ uiContainer, debugContainer, this.berries])
+    }
+
+    createMap(){
+        const map = this.make.tilemap({ key: 'map' });
+        const tileset = map.addTilesetImage('dungeon', 'tiles');
+        const worldLayer = map.createLayer('world', tileset);
+        this.worldLayer = worldLayer;
+        worldLayer.setCollisionByProperty({ collides: true });
+
+        const meshShrinkAmount = 8; // Adjust this value based on your game's needs
+        pathManager = this.navMeshPlugin.buildMeshFromTilemap("mesh", map, [worldLayer], undefined, meshShrinkAmount);
+        pathManager.enableDebug();
+        // pathManager.debugDrawMesh({ drawCentroid: true, drawBounds: false, drawNeighbors: true, drawPortals: true});
+        // pathManager.debugDrawPath(path, 0xffd900);
     }
 
     onGlobalDebugChange(isDebug) {

@@ -34,6 +34,9 @@ export default class Player extends Phaser.GameObjects.Sprite {
     }
 
     setupInput() {
+
+        this.useMouseAndKeyboard = false; // You can toggle this to false for keyboard-only controls.
+
         this.scene.input.on('pointermove', pointer => {
             const angle = Phaser.Math.Angle.Between(this.x, this.y, pointer.worldX, pointer.worldY);
             this.playerDirection = angle + Math.PI / 2;
@@ -65,15 +68,21 @@ export default class Player extends Phaser.GameObjects.Sprite {
             this.handleDeath() 
         }
     }
-
+   
     update(time, delta) {
         let speed = 50;
         let moveX = 0;
         let moveY = 0;
 
-        const playerAngle = this.playerDirection - Math.PI / 2;
+        let playerAngle;
 
-        if (this.shiftKey.isDown && this.stamina >= 0 && (this.cursors.up.isDown || this.wasdKeys.up.isDown)){
+        if (this.useMouseAndKeyboard) {
+            playerAngle = this.playerDirection - Math.PI / 2;
+        } else {
+            playerAngle =  3* Math.PI / 2;
+        }
+
+        if (this.shiftKey.isDown && this.stamina >= 0 && (this.cursors.up.isDown || this.wasdKeys.up.isDown || !this.useMouseAndKeyboard)){
             this.stamina -= 1 * this.scene.game.loop.delta / 1000 * 50;
             speed *= 2;
         }

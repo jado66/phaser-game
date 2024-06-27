@@ -1,4 +1,5 @@
-import { player1, uiContainer } from "@/phaser/scenes/Game";
+import { cameraZoom, debugContainer, player1, uiContainer } from "@/phaser/scenes/Game";
+import Phaser from 'phaser';
 
 class GameUI {
     constructor(scene) {
@@ -18,16 +19,43 @@ class GameUI {
             return;
         }
 
+         // Create the circle for the minimap
 
-        // Create a container for UI elements
-        // Create a circular minimap
-        const mapCircle = this.scene.add.circle(
-            this.scene.sys.canvas.width - 100,
-            100,
-            50, // Radius of the circle
-            0x00bfff // Light blue color
+         const miniMapBackground = this.scene.add.rectangle(
+            this.scene.sys.canvas.width - 100, 
+            100, 
+            150, 
+            150, 
+            0x808080
+        ).setVisible(false);
+        
+        // Set up the viewport for the minimap camera using the miniMapBackground size
+        const miniMapWidth = miniMapBackground.width;
+        const miniMapHeight = miniMapBackground.height;
+        
+        this.miniMapCamera = this.scene.cameras.add(
+            miniMapBackground.x - miniMapBackground.width / 2, 
+            miniMapBackground.y - miniMapBackground.height / 2, 
+            miniMapWidth, 
+            miniMapHeight
         );
-
+        this.miniMapCamera.setBackgroundColor(0x808080); // Example with black color
+        this.miniMapCamera.startFollow(player1);
+        this.miniMapCamera.setZoom(1.5 / cameraZoom);
+        this.miniMapCamera.ignore([uiContainer, debugContainer]);
+        
+        let borderGraphics = this.scene.add.graphics();
+        
+        // Set the border color and line width
+        borderGraphics.lineStyle(2, 0xffffff); // White border with a thickness of 2 units
+        
+        // Draw the border rectangle to match the miniMapBackground
+        borderGraphics.strokeRect(
+            miniMapBackground.x - miniMapBackground.width / 2, 
+            miniMapBackground.y - miniMapBackground.height / 2, 
+            miniMapWidth, 
+            miniMapHeight
+        );
         // Create health bar
 
         const barWidth = 200
@@ -116,7 +144,7 @@ class GameUI {
 
         // Add all elements to the container
         uiContainer.add([
-            mapCircle,
+            // miniMap,
             this.healthBarBackground,
             this.healthBar,
             this.staminaBarBackground,
@@ -176,3 +204,4 @@ const debugPickRandomItem = () =>{
 
     return availableItems[itemToAddIndex]
 }
+

@@ -4,6 +4,9 @@ import { PhaserNavMeshPlugin } from "phaser-navmesh";
 import React, { useEffect } from 'react';
 import Game from './scenes/Game';
 
+export const VW = 1400 //Viewport width
+export const VH = 600 //Viewport height
+
 const PhaserGame = () => {
   const [gameInstance, setGameInstance] = useState(null);
 

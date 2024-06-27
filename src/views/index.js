@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 
 // Dynamically import PhaserGame without SSR
+import './index.css'
 const PhaserGame = dynamic(() => import('../phaser/PhaserGame'), { ssr: false });
 
 let _globalDebug = true; // initial value of globalDebug
@@ -62,8 +63,8 @@ const HomeView = () => {
                 <meta name="description" content="A game built with Phaser and Next.js" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main>
-            <h1 style={{ textAlign: 'center' }}>
+            <body>
+            <h1 style={{ textAlign: 'center', marginBottom:'5px' }}>
                 Maze Runner
                 <button
                     onClick={toggleDebug}
@@ -76,11 +77,13 @@ const HomeView = () => {
                     display:'flex', 
                     justifyContent:'center',
                     alignItems:'center',
-                    position:'relative'
+                    position:'relative',
+                    height:'100%',
+                    padding:'1em'
 
                 }}>
                     <PhaserGame />
-                    {isBlurred && (
+                    {/* {isBlurred && (
                         <div style={{
                             position: 'absolute',
                             top: 0,
@@ -91,10 +94,10 @@ const HomeView = () => {
                             zIndex: 10,
                             borderRadius:'2.5em', 
                         }}></div>
-                    )}
+                    )} */}
                 </div>
 
-            </main>
+            </body>
         </>
     );
 };

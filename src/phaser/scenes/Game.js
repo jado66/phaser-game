@@ -45,31 +45,17 @@ export default class Game extends Phaser.Scene {
     }
     create() {
 
-        this.createMap()
-
-
-
         mainContainer = this.add.container(0,0)
         uiContainer = this.add.container(0, 0);
         debugContainer = this.add.container(0, 0);
 
-        player1 = new Player(this, 20, 60);
-        this.player1 = player1
-    
+        this.createMap()
+        this.createPlayer()
+        this.createGameObjects()
+
         this.gameUI = new GameUI(this, mainContainer, debugContainer);
         this.gameUI.create();
 
-        this.berries = createRandomBerries(this, this.worldLayer, 10);
-
-        this.monsters = []
-        const monster1 = new GreenMonster(this, 265, 250)
-        const monster2 = new RedMonster(this, 20, 400)
-        const monster3 = new BlueMonster(this, 60, 280)
-        this.monsters.push(monster2)
-        this.monsters.push(monster3)
-        this.monsters.push(monster1)
-        
-        mainContainer.add([this.worldLayer, this.player1, ...this.berries, ...this.monsters]) 
 
         if (globalDebug.value) {
             addCenterLines(this);
@@ -81,6 +67,28 @@ export default class Game extends Phaser.Scene {
         this.createCameras()
     }
 
+    createPlayer(){
+        player1 = new Player(this, 20, 60);
+    
+        mainContainer.add(player1) 
+
+    }
+
+    createGameObjects(){
+     
+        this.berries = createRandomBerries(this, this.worldLayer, 10);
+
+        this.monsters = []
+        const monster1 = new GreenMonster(this, 265, 250)
+        const monster2 = new RedMonster(this, 20, 400)
+        const monster3 = new BlueMonster(this, 60, 280)
+        this.monsters.push(monster2)
+        this.monsters.push(monster3)
+        this.monsters.push(monster1)
+        
+        mainContainer.add([ ...this.berries, ...this.monsters]) 
+    }
+
     createCameras(){
         this.mainCamera = this.cameras.main
         this.mainCamera.setZoom(cameraZoom);
@@ -89,13 +97,8 @@ export default class Game extends Phaser.Scene {
         this.mainCamera.ignore(uiContainer)
 
 
-        this.uiCamera = this.cameras.add(0, 0, VW, VH)
+        this.uiCamera = this.cameras.add(0, 0)
         this.uiCamera.ignore([ mainContainer, debugContainer, this.monsters, this.berries, this.worldLayer, player1])
-    
-        // this.miniMapCamera = this.cameras.add(0, 0, VW, VH)
-        // this.miniMapCamera.startFollow(player1);
-        // this.miniMapCamera.setZoom(1.5/cameraZoom)
-        // this.miniMapCamera.ignore([ uiContainer, debugContainer, this.berries])
     }
 
     createMap(){
@@ -108,6 +111,9 @@ export default class Game extends Phaser.Scene {
         const meshShrinkAmount = 8; // Adjust this value based on your game's needs
         pathManager = this.navMeshPlugin.buildMeshFromTilemap("mesh", map, [worldLayer], undefined, meshShrinkAmount);
         pathManager.enableDebug();
+
+        mainContainer.add(this.worldLayer) 
+
         // pathManager.debugDrawMesh({ drawCentroid: true, drawBounds: false, drawNeighbors: true, drawPortals: true});
         // pathManager.debugDrawPath(path, 0xffd900);
     }

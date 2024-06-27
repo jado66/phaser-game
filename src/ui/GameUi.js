@@ -1,15 +1,10 @@
 import { cameraZoom, debugContainer, player1, uiContainer } from "@/phaser/scenes/Game";
-import Phaser from 'phaser';
 
 class GameUI {
     constructor(scene) {
         this.scene = scene;
         this.isShowInventory = false;
         this.inventoryText = ''
-    }
-
-    preload() {
-        // No assets to load in this version
     }
 
     create() {
@@ -19,9 +14,26 @@ class GameUI {
             return;
         }
 
-         // Create the circle for the minimap
+        this.createMiniMapCamera()
+        this.createHealthAndStamina()
+        this.createBottomHotBar()
+               
+        // Add all elements to the container
+        uiContainer.add([
+            this.miniMapBackground,
+            this.healthBarBackground,
+            this.healthBar,
+            this.staminaBarBackground,
+            this.staminaBar,
+            this.inventoryButtonBackground,
+            this.inventoryButton,
+            this.debugAddItemButtonBackground,
+            this.debugAddItemButton
+        ]);
+    }
 
-         const miniMapBackground = this.scene.add.rectangle(
+    createMiniMapCamera(){
+        this.miniMapBackground = this.scene.add.rectangle(
             this.scene.sys.canvas.width - 100, 
             100, 
             150, 
@@ -30,12 +42,12 @@ class GameUI {
         ).setVisible(false);
         
         // Set up the viewport for the minimap camera using the miniMapBackground size
-        const miniMapWidth = miniMapBackground.width;
-        const miniMapHeight = miniMapBackground.height;
+        const miniMapWidth = this.miniMapBackground.width;
+        const miniMapHeight = this.miniMapBackground.height;
         
         this.miniMapCamera = this.scene.cameras.add(
-            miniMapBackground.x - miniMapBackground.width / 2, 
-            miniMapBackground.y - miniMapBackground.height / 2, 
+            this.miniMapBackground.x - this.miniMapBackground.width / 2, 
+            this.miniMapBackground.y - this.miniMapBackground.height / 2, 
             miniMapWidth, 
             miniMapHeight
         );
@@ -43,21 +55,9 @@ class GameUI {
         this.miniMapCamera.startFollow(player1);
         this.miniMapCamera.setZoom(1.5 / cameraZoom);
         this.miniMapCamera.ignore([uiContainer, debugContainer]);
-        
-        let borderGraphics = this.scene.add.graphics();
-        
-        // Set the border color and line width
-        borderGraphics.lineStyle(2, 0xffffff); // White border with a thickness of 2 units
-        
-        // Draw the border rectangle to match the miniMapBackground
-        borderGraphics.strokeRect(
-            miniMapBackground.x - miniMapBackground.width / 2, 
-            miniMapBackground.y - miniMapBackground.height / 2, 
-            miniMapWidth, 
-            miniMapHeight
-        );
-        // Create health bar
+    }
 
+    createHealthAndStamina(){
         const barWidth = 200
 
         this.healthBarBackground = this.scene.add.rectangle(18, 18, barWidth+4, 22, 0x000000);
@@ -65,15 +65,16 @@ class GameUI {
         this.healthBar = this.scene.add.rectangle(20, 20, barWidth, 18, 0xff0000);
         this.healthBar.setOrigin(0, 0)
 
-        // Create stamina bar
         this.staminaBarBackground = this.scene.add.rectangle(18, 40, barWidth+4, 22, 0x000000);
         this.staminaBarBackground.setOrigin(0, 0)
         this.staminaBar = this.scene.add.rectangle(20, 42, barWidth, 18, 0x00ff00);
         this.staminaBar.setOrigin(0, 0)
+    }
 
+    createBottomHotBar(){
         // Create the background rectangle for the inventory button
         const buttonX = this.scene.sys.canvas.width / 2;
-        const buttonY = this.scene.sys.canvas.height - 40;
+        const buttonY = this.scene.sys.canvas.height - 30;
         const buttonWidth = 150;
         const buttonHeight = 50;
 
@@ -86,6 +87,7 @@ class GameUI {
         );
         this.inventoryButtonBackground.setOrigin(0.5, 0.5)
 
+        
         // Create inventory button text
         this.inventoryButton = this.scene.add.text(
             buttonX,
@@ -118,8 +120,8 @@ class GameUI {
             }
         });
 
-        // Add debug button
-        this.debugAddItemButtonBackground = this.scene.add.rectangle(
+          // Add debug button
+          this.debugAddItemButtonBackground = this.scene.add.rectangle(
             buttonX+buttonWidth+5,
             buttonY, 
             buttonWidth, 
@@ -141,21 +143,6 @@ class GameUI {
             player1.inventory.addItem(debugPickRandomItem())
             this.showInventoryJson()
         });
-
-        // Add all elements to the container
-        uiContainer.add([
-            // miniMap,
-            this.healthBarBackground,
-            this.healthBar,
-            this.staminaBarBackground,
-            this.staminaBar,
-            this.inventoryButtonBackground,
-            this.inventoryButton,
-            this.debugAddItemButtonBackground,
-            this.debugAddItemButton
-        ]);
-
-
     }
 
     update() {
@@ -167,7 +154,6 @@ class GameUI {
             this.inventoryDisplay.setText(this.inventoryText);
         }
     }
-
     
     showInventoryJson() {
         this.inventoryDisplay.setVisible(true);

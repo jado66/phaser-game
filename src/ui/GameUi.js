@@ -1,19 +1,23 @@
-import { uiContainer } from "@/phaser/scenes/Game";
+import { player1, uiContainer } from "@/phaser/scenes/Game";
 
 class GameUI {
     constructor(scene) {
         this.scene = scene;
         this.isShowInventory = false;
         this.inventoryText = ''
-        this.player = null
     }
 
     preload() {
         // No assets to load in this version
     }
 
-    create(player) {
-        this.player = player
+    create() {
+
+        if (!player1 || !player1.inventory) {
+            alert('no player or inventory');
+            return;
+        }
+
 
         // Create a container for UI elements
         // Create a circular minimap
@@ -106,7 +110,7 @@ class GameUI {
         this.debugAddItemButton.setInteractive({ useHandCursor: true });
 
         this.debugAddItemButton.on('pointerdown', () => {
-            this.player.inventory.addItem(debugPickRandomItem())
+            player1.inventory.addItem(debugPickRandomItem())
             this.showInventoryJson()
         });
 
@@ -128,10 +132,12 @@ class GameUI {
 
     update() {
         // Update the health and stamina bars based on player's current values
-        this.updateHealthBar(this.player.health);
-        this.updateStaminaBar(this.player.stamina);
-        this.inventoryText = this.player.inventory.listItemsDebugJson()
-        this.inventoryDisplay.setText(this.inventoryText);
+        if (player1 && player1.inventory) {
+            this.updateHealthBar(player1.health);
+            this.updateStaminaBar(player1.stamina);
+            this.inventoryText = player1.inventory.listItemsDebugJson();
+            this.inventoryDisplay.setText(this.inventoryText);
+        }
     }
 
     

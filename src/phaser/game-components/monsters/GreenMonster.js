@@ -14,6 +14,7 @@ const greenMonsterProperties = {
 export class GreenMonster extends Monster {
     constructor(scene, x, y, name = 'GreenMonster', overrideProperties = {}) {
         super(scene, x, y, 'monsterTexture', name, {...greenMonsterProperties, ...overrideProperties});
+        this.setScale(0.25);
 
         this.changeSightGraphicsColor(0x00ff00)
 

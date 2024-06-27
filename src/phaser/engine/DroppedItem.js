@@ -19,7 +19,7 @@ export class DroppedItem extends Phaser.GameObjects.Sprite {
    
     }
     collectItem(item) {
-      player.inventory.addItem(item.name);
+      player1.inventory.addItem(item.name);
       item.destroy();
   }
   }

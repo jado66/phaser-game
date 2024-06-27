@@ -7,7 +7,7 @@ import Phaser from 'phaser';
 import Game from './scenes/Game';
 
 export const VW = 1400 //Viewport width
-export const VH = 800 //Viewport height
+export const VH = 600 //Viewport height
 
 const config = {
     type: Phaser.AUTO,
@@ -18,9 +18,9 @@ const config = {
     parent: 'phaser-game', // Attach the canvas to the specified div,
     physics: {
         default: 'arcade',
-        arcade: {
-            debug: false
-        }
+        // arcade: {
+        //     debug: 
+        // }
     },
     plugins: {
       scene: [
@@ -34,15 +34,12 @@ const config = {
     },
 };
 
-export var globalDebug = config.physics.arcade.debug;
 
-
-const PhaserGame = ({debug = false}) => {
+const PhaserGame = () => {
   useEffect(() => {
     
     const game = new Phaser.Game(config);
 
-    globalDebug = debug
 
     return () => {
       game.destroy(true);

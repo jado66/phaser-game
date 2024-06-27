@@ -1,5 +1,5 @@
-import { globalDebug } from "../PhaserGame";
-import { debugContainer, pathManager, player } from "../scenes/Game";
+import { globalDebug, onGlobalDebugChange } from "@/views";
+import { debugContainer, pathManager, player, player1 } from "../scenes/Game";
 
 export class Character extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture, name, { 
@@ -48,20 +48,22 @@ export class Character extends Phaser.GameObjects.Sprite {
         this.sightGraphicsColor = 0xff0000
 
         this.sightGraphics = scene.add.graphics({ lineStyle: { width: .5, color: this.sightGraphicsColor, alpha: 1 } })
-        this.stateText = scene.add.text(x-8, y - 20, 'wander', { fontSize: '8px', fill: '#fff' }).setVisible(false);
-        this.pathGraphics = scene.add.graphics({ lineStyle: { width: .5, color: 0x00ff00, alpha: 1 } }).setVisible(false);
+        this.stateText = scene.add.text(x-8, y - 20, 'wander', { fontSize: '8px', fill: '#fff' })
+        this.pathGraphics = scene.add.graphics({ lineStyle: { width: .5, color: 0x00ff00, alpha: 1 } })
         this.currentState = 'wander';
         debugContainer.add([this.pathGraphics, this.sightGraphics, this.stateText])
 
-        if (globalDebug){
-            this.sightGraphics.setVisible(true);
-            this.stateText.setVisible(true);
-            this.pathGraphics.setVisible(true);
-        }
+        this.sightGraphics.setVisible(globalDebug.value);
+        this.stateText.setVisible(globalDebug.value);
+        this.pathGraphics.setVisible(globalDebug.value);
 
-        //  Setup looking for new path
-
-        
+        onGlobalDebugChange(this.onGlobalDebugChange.bind(this));
+    }
+    
+    onGlobalDebugChange(isDebug) {
+        this.sightGraphics.setVisible(isDebug);
+        this.stateText.setVisible(isDebug)
+        this.pathGraphics.setVisible(isDebug)
     }
 
     update(time, delta) {
@@ -96,10 +98,8 @@ export class Character extends Phaser.GameObjects.Sprite {
             }
         }
 
-        if (globalDebug){
-            this.drawDetectionRadius();
-            this.updateStateText();
-        }
+        this.drawDetectionRadius();
+        this.updateStateText();
     }
 
     follow(target){
@@ -146,6 +146,7 @@ export class Character extends Phaser.GameObjects.Sprite {
             loop: true
         });
     }
+
     
     changeDirection() {
         const directions = [
@@ -162,7 +163,8 @@ export class Character extends Phaser.GameObjects.Sprite {
             return
         }
 
-        this.path = pathManager.findPath(this, player);
+        this.path = pathManager.findPath(this, player1);
+
         if (!this.path){
             const offsets = [6, 12, -6, -12];
 
@@ -170,13 +172,13 @@ export class Character extends Phaser.GameObjects.Sprite {
             for (let offset of offsets) {
                 this.path = pathManager.findPath(
                     { x: this.x + offset, y: this.y },
-                    player
+                    player1
                 );
                 if (this.path) return;
     
                 this.path = pathManager.findPath(
                     { x: this.x, y: this.y + offset },
-                    player
+                    player1
                 );
                 if (this.path) return;
             }
@@ -185,13 +187,13 @@ export class Character extends Phaser.GameObjects.Sprite {
             for (let offset of offsets) {
                 this.path = pathManager.findPath(
                     this,
-                    { x: player.x + offset, y: player.y }
+                    { x: player1.x + offset, y: player1.y }
                 );
                 if (this.path) return;
     
                 this.path = pathManager.findPath(
                     this,
-                    { x: player.x, y: player.y + offset }
+                    { x: player1.x, y: player1.y + offset }
                 );
                 if (this.path) return;
             }
@@ -224,11 +226,7 @@ export class Character extends Phaser.GameObjects.Sprite {
 
     changeSightGraphicsColor(color) {
         this.sightGraphicsColor = color;
-
-        if (globalDebug){
-            this.drawDetectionRadius();
-
-        }
+        this.drawDetectionRadius();
     }
     
     

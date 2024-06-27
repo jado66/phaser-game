@@ -1,4 +1,4 @@
-import { player } from '../scenes/Game';
+import { player1 } from '../scenes/Game';
 import { Character } from './Character';
   
 const defaultProperties = {
@@ -24,15 +24,15 @@ export class Monster extends Character {
         this.attackPower = attackPower;
         this.loot = loot;
 
-        scene.physics.add.overlap(this, player, this.attackPlayer, null, this);
+        scene.physics.add.overlap(this, player1, this.attackPlayer, null, this);
     }
 
 
     update(time, delta) {
         super.update();
 
-        if (Phaser.Math.Distance.Between(this.x,this.y,player.x,player.y)< this.sightRadius){
-            this.follow(player)
+        if (Phaser.Math.Distance.Between(this.x,this.y,player1.x,player1.y)< this.sightRadius){
+            this.follow(player1)
         }
         else{
             this.stopFollowing()
@@ -40,7 +40,7 @@ export class Monster extends Character {
     }
  
     attackPlayer(){
-        player.takeDamage(this.attackPower)
+        player1.takeDamage(this.attackPower)
     }
 
     attack(target) {

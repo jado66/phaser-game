@@ -14,5 +14,8 @@ const redMonsterProperties = {
 export class RedMonster extends Monster {
     constructor(scene, x, y, name = 'RedMonster', overrideProperties = {}) {
         super(scene, x, y, 'monsterTexture2', name, {...redMonsterProperties, ...overrideProperties});
+    
+        this.setScale(0.25);
+
     }
 }

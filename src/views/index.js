@@ -23,6 +23,25 @@ export const globalDebug = new Proxy({}, {
     }
 });
 
+const controlsListeners = [];
+
+let _controls = 'Mouse+Keyboard'; // initial value of controls
+
+export const controls = new Proxy({}, {
+    get(target, prop) {
+        return _controls;
+    },
+    set(target, prop, value) {
+        if (['Mouse+Keyboard', 'Keyboard', 'Mobile'].includes(value)) {
+            _controls = value;
+            controlsListeners.forEach(listener => listener(value));
+            return true;
+        }
+        return false;
+    }
+});
+
+
 export function onGlobalDebugChange(callback) {
     debugListeners.push(callback);
 }
@@ -30,6 +49,8 @@ export function onGlobalDebugChange(callback) {
 const HomeView = () => {
     const [isDebug, setDebug] = useState(true)
     const [isBlurred, setIsBlurred] = useState(false);
+    const [currentControl, setCurrentControl] = useState('Mouse+Keyboard');
+
 
     useEffect(() => {
         const handleGlobalDebugChange = () => setDebug(globalDebug);
@@ -56,6 +77,14 @@ const HomeView = () => {
         globalDebug.value = !globalDebug.value;
     };
     
+    const cycleControls = () => {
+        const controlOptions = ['Mouse+Keyboard', 'Keyboard', 'Mobile'];
+        const currentIndex = controlOptions.indexOf(currentControl);
+        const newIndex = (currentIndex + 1) % controlOptions.length;
+        controls.value = controlOptions[newIndex];
+        setCurrentControl(controls.value); // update the state with the new control value
+    };
+
     return (
         <>
             <Head>
@@ -72,6 +101,12 @@ const HomeView = () => {
                 >
                     Turn debug {isDebug ? 'off' : 'on'}
                 </button>
+                <button
+                    onClick={cycleControls}
+                    style={{ marginLeft: '20px' }}
+                >
+                    Controls: {currentControl}
+                </button>
             </h1>
                 <div style={{
                     display:'flex', 
@@ -83,7 +118,7 @@ const HomeView = () => {
 
                 }}>
                     <PhaserGame />
-                    {/* {isBlurred && (
+                    {isBlurred && (
                         <div style={{
                             position: 'absolute',
                             top: 0,
@@ -94,7 +129,7 @@ const HomeView = () => {
                             zIndex: 10,
                             borderRadius:'2.5em', 
                         }}></div>
-                    )} */}
+                    )}
                 </div>
 
             </body>

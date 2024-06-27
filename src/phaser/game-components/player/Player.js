@@ -1,5 +1,5 @@
 import Inventory from "@/phaser/engine/Inventory";
-let cursors;
+import { controls } from "@/views";
 
 export default class Player extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture) {
@@ -31,6 +31,11 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
         // Store the last known position of the cursor
         this.pointerPosition = { x: this.x, y: this.y };
+
+        this.debugText = this.scene.add.text(this.x, this.y - 50, '', {
+            font: '16px Arial',
+            fill: '#ffffff'
+        }).setOrigin(0.5);
     }
 
     setupInput() {
@@ -57,8 +62,6 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
         this.shiftKey = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     
-        // this.scene.mainCamera.startFollow(this);
-
     }
 
     takeDamage(amount) {
@@ -76,7 +79,7 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
         let playerAngle;
 
-        if (this.useMouseAndKeyboard) {
+        if (controls.value === 'Mouse+Keyboard') {
             playerAngle = this.playerDirection - Math.PI / 2;
         } else {
             playerAngle =  3* Math.PI / 2;
@@ -113,6 +116,16 @@ export default class Player extends Phaser.GameObjects.Sprite {
 
         this.body.setVelocityX(moveX * (this.scene.game.loop.delta / 20));
         this.body.setVelocityY(moveY * (this.scene.game.loop.delta / 20));
+
+        // this.updateDebugText();
+
+    }
+
+    updateDebugText() {
+        const controlStatus = `Controls: ${controls.value}`;
+
+        this.debugText.setText(controlStatus);
+        this.debugText.setPosition(this.x, this.y - 50);
     }
 
     handleDeath() {

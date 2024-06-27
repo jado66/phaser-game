@@ -1,22 +1,19 @@
 import GameUI from "@/ui/GameUi";
 import { VW, VH } from "../PhaserGame";
 import { addCenterLines } from "../debug/addCenterLines";
-import Inventory from "../engine/Inventory";
 import { enableCameraZoom } from "../debug/enableCameraZoom";
 import { addDebugTileCollisionColors } from "../debug/colorCollisionTiles";
 import { addPlayerCollisionBounds } from "../debug/addPlayerCollisionBounds";
-import { Berry, createRandomBerries } from "../game-components/dropped-items/Berry";
+import { createRandomBerries } from "../game-components/dropped-items/Berry";
 import { GreenMonster } from "../game-components/monsters/GreenMonster";
 import { RedMonster } from "../game-components/monsters/RedMonster";
 import { BlueMonster } from "../game-components/monsters/BlueMonster";
 import Player from "../game-components/player/Player";
 import { onGlobalDebugChange, globalDebug } from "@/views";
 
-let cursors;
 export let player1;
 export let pathManager;
 export let cameraZoom = 4
-
 
 export let debugContainer
 export let uiContainer
@@ -26,7 +23,6 @@ export default class Game extends Phaser.Scene {
     constructor() {
         super("game");
         onGlobalDebugChange(this.onGlobalDebugChange.bind(this));
-
     }
     init() {
     }
@@ -40,42 +36,36 @@ export default class Game extends Phaser.Scene {
 
         this.load.image('spriteTextureForward','../assets/sprite-forward.png')
         this.load.tilemapTiledJSON('map', '../assets/map2.json');
-
-        // this.gameUI.preload();
     }
     create() {
 
-        mainContainer = this.add.container(0,0)
-        uiContainer = this.add.container(0, 0);
-        debugContainer = this.add.container(0, 0);
+        this.createContainers() //Creates three groups debug, ui, and main container for handling what is shown on each cameras
 
         this.createMap()
         this.createPlayer()
-        this.createGameObjects()
+        this.createGameObjects() //Enemies, Objects, etc.
 
         this.gameUI = new GameUI(this, mainContainer, debugContainer);
-        this.gameUI.create();
-
-
-        if (globalDebug.value) {
-            addCenterLines(this);
-            addPlayerCollisionBounds(this);
-            enableCameraZoom(this);
-            addDebugTileCollisionColors(this, this.worldLayer);
-        }
 
         this.createCameras()
+
+        if (globalDebug.value) {
+            this.addDebugItems()
+        }
+    }
+
+    createContainers(){
+        mainContainer = this.add.container(0,0)
+        uiContainer = this.add.container(0, 0);
+        debugContainer = this.add.container(0, 0);
     }
 
     createPlayer(){
         player1 = new Player(this, 20, 60);
-    
         mainContainer.add(player1) 
-
     }
 
     createGameObjects(){
-     
         this.berries = createRandomBerries(this, this.worldLayer, 10);
 
         this.monsters = []
@@ -96,7 +86,6 @@ export default class Game extends Phaser.Scene {
         this.mainCamera.setDeadzone(VW / 16, VH / 16);
         this.mainCamera.ignore(uiContainer)
 
-
         this.uiCamera = this.cameras.add(0, 0)
         this.uiCamera.ignore([ mainContainer, debugContainer, this.monsters, this.berries, this.worldLayer, player1])
     }
@@ -104,24 +93,25 @@ export default class Game extends Phaser.Scene {
     createMap(){
         const map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('dungeon', 'tiles');
-        const worldLayer = map.createLayer('world', tileset);
-        this.worldLayer = worldLayer;
-        worldLayer.setCollisionByProperty({ collides: true });
+        this.worldLayer = map.createLayer('world', tileset);
+        this.worldLayer.setCollisionByProperty({ collides: true });
 
         const meshShrinkAmount = 8; // Adjust this value based on your game's needs
-        pathManager = this.navMeshPlugin.buildMeshFromTilemap("mesh", map, [worldLayer], undefined, meshShrinkAmount);
+        pathManager = this.navMeshPlugin.buildMeshFromTilemap("mesh", map, [this.worldLayer], undefined, meshShrinkAmount);
         pathManager.enableDebug();
 
         mainContainer.add(this.worldLayer) 
 
+        // For visualizing the navmesh
         // pathManager.debugDrawMesh({ drawCentroid: true, drawBounds: false, drawNeighbors: true, drawPortals: true});
         // pathManager.debugDrawPath(path, 0xffd900);
     }
 
-    onGlobalDebugChange(isDebug) {
-        if (debugContainer){
-            debugContainer.visible = isDebug;
-        }   
+    addDebugItems(){
+        addCenterLines(this);
+        addPlayerCollisionBounds(this);
+        enableCameraZoom(this);
+        addDebugTileCollisionColors(this, this.worldLayer);
     }
 
     update(time, delta) {
@@ -129,18 +119,14 @@ export default class Game extends Phaser.Scene {
         this.monsters.forEach(character => character.update(time, delta));
         player1.update(time, delta);
     }
+    
+    onGlobalDebugChange(isDebug) {
+        if (debugContainer){
+            debugContainer.visible = isDebug;
+        }   
+    }
 
     resetGame() {
-        // Restart the scene
         this.scene.restart();
     }
 }
-
- 
-
-
-        // monster1.setScale(.25)
-        // monster2.setScale(.25)
-        // monster3.setScale(.25)
-
-

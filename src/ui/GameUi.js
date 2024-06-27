@@ -5,6 +5,8 @@ class GameUI {
         this.scene = scene;
         this.isShowInventory = false;
         this.inventoryText = ''
+
+        this.create()
     }
 
     create() {

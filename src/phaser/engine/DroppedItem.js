@@ -1,4 +1,4 @@
-import { player } from "../scenes/Game";
+import { player1 } from "../scenes/Game";
 
 export class DroppedItem extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, texture) {
@@ -14,7 +14,7 @@ export class DroppedItem extends Phaser.GameObjects.Sprite {
       this.name = ''; // Each item should override and set its own name
   
       // Set up collision with player
-      this.scene.physics.add.overlap(this, player, this.collectItem, null, this);
+      this.scene.physics.add.overlap(this, player1, this.collectItem, null, this);
 
    
     }

@@ -47,19 +47,21 @@ export function onGlobalDebugChange(callback) {
 }
 
 const HomeView = () => {
-    const [isDebug, setDebug] = useState(true)
+    const [isDebug, setDebug] = useState(true);
     const [isBlurred, setIsBlurred] = useState(false);
     const [currentControl, setCurrentControl] = useState('Mouse+Keyboard');
 
-
+    // Run effect only in the browser
     useEffect(() => {
-        const handleGlobalDebugChange = () => setDebug(globalDebug);
+        if (typeof window !== 'undefined') {
+            const handleGlobalDebugChange = () => setDebug(globalDebug);
 
-        window.addEventListener('globalDebugChange', handleGlobalDebugChange);
+            window.addEventListener('globalDebugChange', handleGlobalDebugChange);
 
-        return () => {
-            window.removeEventListener('globalDebugChange', handleGlobalDebugChange);
-        };
+            return () => {
+                window.removeEventListener('globalDebugChange', handleGlobalDebugChange);
+            };
+        }
     }, []);
 
     useEffect(() => {
@@ -68,15 +70,17 @@ const HomeView = () => {
         onGlobalDebugChange(handleGlobalDebugChange);
 
         return () => {
-            // Here, we'd ideally remove the specific callback, 
-            // but since we're using an array, we won't handle this part.
+            const index = debugListeners.indexOf(handleGlobalDebugChange);
+            if (index > -1) {
+                debugListeners.splice(index, 1);
+            }
         };
     }, []);
 
     const toggleDebug = () => {
         globalDebug.value = !globalDebug.value;
     };
-    
+
     const cycleControls = () => {
         const controlOptions = ['Mouse+Keyboard', 'Keyboard', 'Mobile'];
         const currentIndex = controlOptions.indexOf(currentControl);
@@ -92,7 +96,6 @@ const HomeView = () => {
                 <meta name="description" content="A game built with Phaser and Next.js" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <body>
             <h1 style={{ textAlign: 'center', marginBottom:'5px' }}>
                 Maze Runner
                 <button
@@ -108,34 +111,31 @@ const HomeView = () => {
                     Controls: {currentControl}
                 </button>
             </h1>
-                <div style={{
-                    display:'flex', 
-                    justifyContent:'center',
-                    alignItems:'center',
-                    position:'relative',
-                    height:'100%',
-                    padding:'1em'
+            <div style={{
+                display:'flex',
+                justifyContent:'center',
+                alignItems:'center',
+                position:'relative',
+                height:'100%',
+                padding:'1em'
 
-                }}>
-                    <PhaserGame />
-                    {isBlurred && (
-                        <div style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width:VW,
-                            height:VH,
-                            backgroundColor: 'rgba(128, 128, 128, 0.7)',
-                            zIndex: 10,
-                            borderRadius:'2.5em', 
-                        }}></div>
-                    )}
-                </div>
-
-            </body>
+            }}>
+                <PhaserGame />
+                {isBlurred && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width:VW,
+                        height:VH,
+                        backgroundColor: 'rgba(128, 128, 128, 0.7)',
+                        zIndex: 10,
+                        borderRadius:'2.5em',
+                    }}></div>
+                )}
+            </div>
         </>
     );
 };
 
 export default HomeView;
-

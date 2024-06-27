@@ -1,53 +1,50 @@
 'use client';
 
 import { PhaserNavMeshPlugin } from "phaser-navmesh";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Game from './scenes/Game';
 
-export const VW = 1400 //Viewport width
-export const VH = 600 //Viewport height
+export const VW = 1400; // Viewport width
+export const VH = 600;  // Viewport height
 
 const PhaserGame = () => {
   const [gameInstance, setGameInstance] = useState(null);
 
   useEffect(() => {
-
-    const config = {
-      type: Phaser.AUTO,
-      width: '100%',
-      height: '100%',
-      backgroundColor: '#AFE1AF', // Set your desired background color here
-      scene: [Game],
-      parent: 'phaser-game', // Attach the canvas to the specified div,
-      physics: {
+    if (typeof window !== 'undefined') {
+      const config = {
+        type: Phaser.AUTO,
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#AFE1AF',
+        scene: [Game],
+        parent: 'phaser-game',
+        physics: {
           default: 'arcade',
-          // arcade: {
-          //     debug: 
-          // }
-      },
-      plugins: {
-        scene: [
-          {
-            key: "NavMeshPlugin", // Key to store the plugin class under in cache
-            plugin: PhaserNavMeshPlugin, // Class that constructs plugins
-            mapping: "navMeshPlugin", // Property mapping to use for the scene, e.g. this.navMeshPlugin
-            start: true,
-          },
-        ],
-      },
-      callbacks: {
-        postBoot: function (game) {
-          // In v3.15, you have to override Phaser's default styles
-          game.canvas.style.width = '100%';
-          game.canvas.style.height = '100%';
+        },
+        plugins: {
+          scene: [
+            {
+              key: "NavMeshPlugin",
+              plugin: PhaserNavMeshPlugin,
+              mapping: "navMeshPlugin",
+              start: true,
+            },
+          ],
+        },
+        callbacks: {
+          postBoot: function (game) {
+            game.canvas.style.width = '100%';
+            game.canvas.style.height = '100%';
+          }
         }
-      }
-    };
+      };
 
-    import('phaser').then((Phaser) => {
-      const game = new Phaser.Game(config);
-      setGameInstance(game);
-    });
+      import('phaser').then((Phaser) => {
+        const game = new Phaser.Game(config);
+        setGameInstance(game);
+      });
+    }
 
     return () => {
       if (gameInstance) {
@@ -66,8 +63,9 @@ const PhaserGame = () => {
             border:'1px solid black',
             width:'100%',
             height:'100%'
-        }}/>
-    );
+        }}
+    />
+  );
 };
 
 export default PhaserGame;

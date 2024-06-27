@@ -1,53 +1,55 @@
 'use client';
 
-// components/PhaserGame.js
 import { PhaserNavMeshPlugin } from "phaser-navmesh";
 import React, { useEffect } from 'react';
 import Game from './scenes/Game';
 
-export const VW = 1400 //Viewport width
-export const VH = 600 //Viewport height
-
-const config = {
-    type: Phaser.AUTO,
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#AFE1AF', // Set your desired background color here
-    scene: [Game],
-    parent: 'phaser-game', // Attach the canvas to the specified div,
-    physics: {
-        default: 'arcade',
-        // arcade: {
-        //     debug: 
-        // }
-    },
-    plugins: {
-      scene: [
-        {
-          key: "NavMeshPlugin", // Key to store the plugin class under in cache
-          plugin: PhaserNavMeshPlugin, // Class that constructs plugins
-          mapping: "navMeshPlugin", // Property mapping to use for the scene, e.g. this.navMeshPlugin
-          start: true,
-        },
-      ],
-    },
-    callbacks: {
-      postBoot: function (game) {
-        // In v3.15, you have to override Phaser's default styles
-        game.canvas.style.width = '100%';
-        game.canvas.style.height = '100%';
-      }
-    }
-};
-
-
 const PhaserGame = () => {
+  const [gameInstance, setGameInstance] = useState(null);
+
   useEffect(() => {
-    
-    const game = new Phaser.Game(config);
+
+    const config = {
+      type: Phaser.AUTO,
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#AFE1AF', // Set your desired background color here
+      scene: [Game],
+      parent: 'phaser-game', // Attach the canvas to the specified div,
+      physics: {
+          default: 'arcade',
+          // arcade: {
+          //     debug: 
+          // }
+      },
+      plugins: {
+        scene: [
+          {
+            key: "NavMeshPlugin", // Key to store the plugin class under in cache
+            plugin: PhaserNavMeshPlugin, // Class that constructs plugins
+            mapping: "navMeshPlugin", // Property mapping to use for the scene, e.g. this.navMeshPlugin
+            start: true,
+          },
+        ],
+      },
+      callbacks: {
+        postBoot: function (game) {
+          // In v3.15, you have to override Phaser's default styles
+          game.canvas.style.width = '100%';
+          game.canvas.style.height = '100%';
+        }
+      }
+    };
+
+    import('phaser').then((Phaser) => {
+      const game = new Phaser.Game(config);
+      setGameInstance(game);
+    });
 
     return () => {
-      game.destroy(true);
+      if (gameInstance) {
+        gameInstance.destroy(true);
+      }
     };
   }, []);
 
